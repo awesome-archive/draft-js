@@ -1,10 +1,8 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @format
  * @flow
@@ -22,8 +20,10 @@ const EditorState = require('EditorState');
 const ReactDOM = require('ReactDOM');
 
 const findAncestorOffsetKey = require('findAncestorOffsetKey');
+const getCorrectDocumentFromNode = require('getCorrectDocumentFromNode');
 const getTextContentFromFiles = require('getTextContentFromFiles');
 const getUpdatedSelectionState = require('getUpdatedSelectionState');
+const getWindowForNode = require('getWindowForNode');
 const isEventHandled = require('isEventHandled');
 const nullthrows = require('nullthrows');
 
@@ -37,11 +37,12 @@ function getSelectionForEvent(
   let node: ?Node = null;
   let offset: ?number = null;
 
+  const eventTargetDocument = getCorrectDocumentFromNode(event.currentTarget);
   /* $FlowFixMe(>=0.68.0 site=www,mobile) This comment suppresses an error
    * found when Flow v0.68 was deployed. To see the error delete this comment
    * and run Flow. */
-  if (typeof document.caretRangeFromPoint === 'function') {
-    const dropRange = document.caretRangeFromPoint(event.x, event.y);
+  if (typeof eventTargetDocument.caretRangeFromPoint === 'function') {
+    const dropRange = eventTargetDocument.caretRangeFromPoint(event.x, event.y);
     node = dropRange.startContainer;
     offset = dropRange.startOffset;
   } else if (event.rangeParent) {
@@ -93,7 +94,9 @@ const DraftEditorDragHandler = {
       return;
     }
 
-    const files = data.getFiles();
+    /* $FlowFixMe This comment suppresses an error found DataTransfer was typed.
+     * getFiles() returns an array of <Files extends Blob>, not Blob */
+    const files: Array<Blob> = (data.getFiles(): any);
     if (files.length > 0) {
       if (
         editor.props.handleDroppedFiles &&
@@ -121,7 +124,11 @@ const DraftEditorDragHandler = {
       editor.update(moveText(editorState, dropSelection));
     } else {
       editor.update(
-        insertTextAtSelection(editorState, dropSelection, data.getText()),
+        insertTextAtSelection(
+          editorState,
+          dropSelection,
+          (data.getText(): any),
+        ),
       );
     }
     endDrag(editor);
@@ -138,7 +145,7 @@ function endDrag(editor) {
   const editorNode = ReactDOM.findDOMNode(editor);
   if (editorNode) {
     const mouseUpEvent = new MouseEvent('mouseup', {
-      view: window,
+      view: getWindowForNode(editorNode),
       bubbles: true,
       cancelable: true,
     });

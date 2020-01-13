@@ -1,10 +1,8 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @format
  * @flow
@@ -19,10 +17,11 @@ import type SelectionState from 'SelectionState';
 
 const DraftEditorTextNode = require('DraftEditorTextNode.react');
 const React = require('React');
-const ReactDOM = require('ReactDOM');
 
 const invariant = require('invariant');
-const setDraftEditorSelection = require('setDraftEditorSelection');
+const isHTMLBRElement = require('isHTMLBRElement');
+const setDraftEditorSelection = require('setDraftEditorSelection')
+  .setDraftEditorSelection;
 
 type Props = {
   // The block that contains this leaf.
@@ -96,7 +95,7 @@ class DraftEditorLeaf extends React.Component<Props> {
     // Determine the appropriate target node for selection. If the child
     // is not a text node, it is a <br /> spacer. In this case, use the
     // <span> itself as the selection target.
-    const node = ReactDOM.findDOMNode(this);
+    const node = this.leaf;
     invariant(node, 'Missing node');
     const child = node.firstChild;
     invariant(child, 'Missing child');
@@ -104,10 +103,7 @@ class DraftEditorLeaf extends React.Component<Props> {
 
     if (child.nodeType === Node.TEXT_NODE) {
       targetNode = child;
-      /* $FlowFixMe(>=0.79.1 site=www) This comment suppresses an error found
-     * when Flow v0.79 was deployed. To see the error delete this comment and
-     * run Flow. */
-    } else if (child.tagName === 'BR') {
+    } else if (isHTMLBRElement(child)) {
       targetNode = node;
     } else {
       targetNode = child.firstChild;
@@ -118,7 +114,7 @@ class DraftEditorLeaf extends React.Component<Props> {
   }
 
   shouldComponentUpdate(nextProps: Props): boolean {
-    const leafNode = ReactDOM.findDOMNode(this.leaf);
+    const leafNode = this.leaf;
     invariant(leafNode, 'Missing leafNode');
     const shouldUpdate =
       leafNode.textContent !== nextProps.text ||

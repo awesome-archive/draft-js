@@ -1,10 +1,8 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @format
  * @flow strict-local
@@ -48,11 +46,10 @@ const isListBlock = (block?: RawDraftContentBlock): boolean => {
 
 const addDepthToChildren = (block: RawDraftContentBlock) => {
   if (Array.isArray(block.children)) {
-    block.children = block.children.map(
-      child =>
-        child.type === block.type
-          ? {...child, depth: (block.depth || 0) + 1}
-          : child,
+    block.children = block.children.map(child =>
+      child.type === block.type
+        ? {...child, depth: (block.depth || 0) + 1}
+        : child,
     );
   }
 };

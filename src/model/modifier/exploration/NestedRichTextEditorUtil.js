@@ -1,10 +1,8 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @format
  * @flow
@@ -124,8 +122,8 @@ const NestedRichTextEditorUtil: RichTextUtils = {
       selection.getAnchorOffset() ||
       selection.getFocusOffset() ||
       (currentBlock.getType() === 'unstyled' &&
-        (previousBlockKey &&
-          content.getBlockForKey(previousBlockKey).getType() !== 'atomic'))
+        previousBlockKey &&
+        content.getBlockForKey(previousBlockKey).getType() !== 'atomic')
     ) {
       return null;
     }
@@ -531,11 +529,10 @@ const onUntab = (blockMap: BlockMap, block: ContentBlockNode): BlockMap => {
       .toOrderedMap();
 
     // set the nextChildren's parent to the new block
-    blockMap = blockMap.map(
-      block =>
-        nextChildren.includes(block.getKey())
-          ? block.merge({parent: newBlock.getKey()})
-          : block,
+    blockMap = blockMap.map(block =>
+      nextChildren.includes(block.getKey())
+        ? block.merge({parent: newBlock.getKey()})
+        : block,
     );
     // update the next/previous pointers for the children at the split
     blockMap = blockMap
